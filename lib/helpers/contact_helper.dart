@@ -1,5 +1,7 @@
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+final String contactTable = "contacts";
 final String idColumn = "id";
 final String nameColumn = "name";
 final String emailColumn = "email";
@@ -8,8 +10,53 @@ final String imgColumn = "imagePath";
 
 class ContactHelper {
 
+  static final ContactHelper _instance = ContactHelper.internal();
+
+  factory ContactHelper () => _instance;
+
+  ContactHelper.internal();
+
+  Database _db;
+
+  Future<Database> get dg async {
+    if(_db != null) {
+      return _db;
+    } else {
+      _db = await initDb();
+    }
+  }
+
+  Future<Database> initDb() async {
+
+    // Path from where the database will be stored
+    final databasePath = await getDatabasesPath();
+
+    // Path with file (path complete)
+    final path = join(databasePath, "contacts.db");
+
+
+
+    Database db = await openDatabase(path, version: 1, onCreate: (Database db, int newVersion) async {
+
+      await db.execute(
+        // Code SQL
+        "CREATE TABLE $contactTable("
+            "$idColumn INTEGER PRIMARY KEY, "
+            "$nameColumn VARCHAR(30),"
+            "$emailColumn VARCHAR(45),"
+            "$phoneColumn VARCHAR(20),"
+            "$imgColumn VARCHAR(50))"
+      );
+
+    });
+
+    return db;
+
+  }
+
 }
 
+// Modal class
 class Contact {
 
   int id;
