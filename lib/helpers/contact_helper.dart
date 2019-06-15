@@ -83,6 +83,59 @@ class ContactHelper {
 
   }
 
+  Future<List<Contact>> getContacts() async {
+    // Get database
+    Database dbContact = await db;
+
+    List<Map> contactsMap = await dbContact.rawQuery("SELECT * FROM $contactTable");
+
+    // Convert Map list to Contact list
+    List<Contact> contacts = List();
+    for(Map indexMap in contactsMap) {
+      contacts.add(Contact.fromMap(indexMap));
+    }
+
+    return contacts;
+
+  }
+
+  Future<int> deleteContact(int id) async {
+    // Get database
+    Database dbContact = await db;
+
+    // Remove data from database (filter id)
+    int status = await dbContact.delete(contactTable, where: "$idColumn == ?", whereArgs: [id]);
+
+    return status;
+  }
+
+  Future<int> updateContact(Contact contact) async {
+    // Get database
+    Database dbContact = await db;
+
+    // Update data from database
+    int status = await dbContact.update(contactTable, contact.toMap(), where: "$idColumn", whereArgs: [contact.id]);
+
+    return status;
+  }
+
+  Future<int> getNumber() async {
+    // Get database
+    Database dbContact = await db;
+
+    // Contacts number
+    int contactsLength = Sqflite.firstIntValue(await dbContact.rawQuery("SELECT COUNT(*) FROM $contactTable"));
+
+    return contactsLength;
+  }
+
+  Future close() async {
+    // Get database
+    Database dbContact = await db;
+    dbContact.close();
+  }
+
+
 }
 
 // Modal class
