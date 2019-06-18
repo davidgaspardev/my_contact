@@ -23,6 +23,7 @@ class ContactHelper {
       return _db;
     } else {
       _db = await initDb();
+      return _db;
     }
   }
 
